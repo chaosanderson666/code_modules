@@ -51,7 +51,7 @@ static uint8_t rec_charcnt;
 static char his_num;
 static char his_idx;
 
-const cmd_list_t cmd_list[] = {
+static const cmd_list_t cmd_list[] = {
 	{ .name = "?", .handle = help, .help = "<no param> print the command list and how to use them." },
 	{ .name = "c", .handle = clear_window, .help = "<no param> clear the command window." },
 	{ .name = "led", .handle = led,  .help = "<on/off> turn on or turn off the led." },
@@ -74,7 +74,7 @@ const cmd_list_t cmd_list[] = {
 * Notes       : none.
 *********************************************************************************************************
 */
-uint8_t cmd_excute(void)
+static uint8_t cmd_excute(void)
 {
 	uint8_t argc;
 	uint8_t ret;
@@ -149,7 +149,7 @@ uint8_t cmd_excute(void)
 * Notes       : - This function should called by UART interrupt.
 *********************************************************************************************************
 */
-void return_key_evt(void)
+static void return_key_evt(void)
 {
 	cmd_excute();
 	cli_printf("\r\n%s", PROMPT);
@@ -162,7 +162,7 @@ void return_key_evt(void)
 * Notes       : - This function should called by UART interrupt.
 *********************************************************************************************************
 */
-void del_key_evt(void)
+static void del_key_evt(void)
 {
 	if(rec_charcnt > 0){
 		rec_charcnt--;
@@ -178,7 +178,7 @@ void del_key_evt(void)
 * Notes       : - This function should called by UART interrupt.
 *********************************************************************************************************
 */
-void up_key_evt(void)
+static void up_key_evt(void)
 {
 	uint8_t i;
 	
@@ -205,7 +205,7 @@ void up_key_evt(void)
 * Notes       : - This function should called by UART interrupt.
 *********************************************************************************************************
 */
-void down_key_evt(void)
+static void down_key_evt(void)
 {
 	uint8_t i;
 	
