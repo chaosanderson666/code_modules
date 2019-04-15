@@ -52,18 +52,18 @@ static char his_num;
 static char his_idx;
 
 static const cmd_list_t cmd_list[] = {
-	{ .name = "?", .handle = help, .help = "<no param> print the command list and how to use them." },
-	{ .name = "c", .handle = clear_window, .help = "<no param> clear the command window." },
-	{ .name = "led", .handle = led,  .help = "<on/off> turn on or turn off the led." },
-	{ .name = "time", .handle = show_time, .help = "<none/w> show the current date and time." },
-	{ .name = "task", .handle = show_task, .help = "<no param> show the task state." },
+	{ .name = "?",      .handle = help,         .help = "<no param> print the command list and how to use them." },
+	{ .name = "c",      .handle = clear_window, .help = "<no param> clear the command window." },
+	{ .name = "led",    .handle = led,          .help = "<on/off> turn on or turn off the led." },
+	{ .name = "time",   .handle = show_time,    .help = "<none/w> show the current date and time." },
+	{ .name = "task",   .handle = show_task,    .help = "<no param> show the task state." },
 	{ .name = "reboot", .handle = system_reset, .help = "<no param> reboot the system." },
-	{ .name = "mcu", .handle = dev_infor, .help = "<no param> show the mcu information." },
-	{ .name = "swi", .handle = set_pending, .help = "<no param> generate a software interrupt." },
-	{ .name = "timer", .handle = timer_manage, .help = "<timer id> manage the timer of RTOS." },
-	{ .name = "kill", .handle = task_manage, .help = "<task id> delete the task of RTOS." },
-	{ .name = "his", .handle = show_his_cmd, .help = "<no param> show the history commands." },
-    { .name = "test", .handle = test, .help = "<anything> test the command line." },
+	{ .name = "mcu",    .handle = dev_infor,    .help = "<no param> show the mcu information." },
+	{ .name = "swi",    .handle = set_pending,  .help = "<no param> generate a software interrupt." },
+	{ .name = "timer",  .handle = timer_manage, .help = "<timer id> manage the timer of RTOS." },
+	{ .name = "kill",   .handle = task_manage,  .help = "<task id> delete the task of RTOS." },
+	{ .name = "his",    .handle = show_his_cmd, .help = "<no param> show the history commands." },
+    { .name = "test",   .handle = test,         .help = "<anything> test the command line." },
 };
 
 /*
