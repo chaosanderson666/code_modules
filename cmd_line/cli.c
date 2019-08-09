@@ -44,17 +44,17 @@ typedef struct{
 /*
 *********************************************************************************************************
 */
-static char *argv[ARG_MAX_NUM];
-static char rec_buf[CMD_BUF_LEN];
-static char his_buf[MAX_HIS_CMD][CMD_BUF_LEN];
-static uint8_t rec_charcnt;
-static char his_num;
-static char his_idx;
+static char *argv[ARG_MAX_NUM] = {NULL};
+static char rec_buf[CMD_BUF_LEN] = {0};
+static char his_buf[MAX_HIS_CMD][CMD_BUF_LEN] = {0};
+static uint8_t rec_charcnt = 0;
+static char his_num = 0;
+static char his_idx = 0;
 
 static const cmd_list_t cmd_list[] = {
-	{ .name = "?",      .handle = help,         .help = "<no param> print the command list and how to use them." },
+	{ .name = "?",      .handle = help,         .help = "<no param> print the help info." },
 	{ .name = "c",      .handle = clear_window, .help = "<no param> clear the command window." },
-	{ .name = "led",    .handle = led,          .help = "<on/off> turn on or turn off the led." },
+	{ .name = "led",    .handle = led,          .help = "<on|off> turn on or turn off the led." },
 	{ .name = "time",   .handle = show_time,    .help = "<none/w> show the current date and time." },
 	{ .name = "task",   .handle = show_task,    .help = "<no param> show the task state." },
 	{ .name = "reboot", .handle = system_reset, .help = "<no param> reboot the system." },
@@ -63,7 +63,7 @@ static const cmd_list_t cmd_list[] = {
 	{ .name = "timer",  .handle = timer_manage, .help = "<timer id> manage the timer of RTOS." },
 	{ .name = "kill",   .handle = task_manage,  .help = "<task id> delete the task of RTOS." },
 	{ .name = "his",    .handle = show_his_cmd, .help = "<no param> show the history commands." },
-    { .name = "test",   .handle = test,         .help = "<anything> test the command line." },
+	{ .name = "test",   .handle = test,         .help = "<anything> test the command line." },
 };
 
 /*
@@ -74,13 +74,13 @@ static const cmd_list_t cmd_list[] = {
 * Notes       : none.
 *********************************************************************************************************
 */
-static uint8_t cmd_excute(void)
+static char cmd_excute(void)
 {
-	uint8_t argc;
-	uint8_t ret;
 	uint8_t i;
-	uint8_t cmd_num;
-	char pre_cmd_idx;
+	uint8_t argc = 0;
+	uint8_t ret = 0;
+	uint8_t cmd_num = 0;
+	uint8_t pre_cmd_idx = 0;
 
 	/* if it is NUL, do nothing. */
 	if(rec_buf[0] == 0x00){  
@@ -236,8 +236,7 @@ void cmd_line(char c)
 	static bool esc = false;
 	static bool lsb = false;  /* left square bracket. */
 	
-	switch(c)
-	{
+	switch(c) {
 		case KEY_RETURN : return_key_evt(); return; /* return key. */
 		case KEY_DELETE : del_key_evt();    return; /* delete key. */
 		case KEY_ESC    : esc = true;       return;
