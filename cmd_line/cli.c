@@ -74,7 +74,7 @@ static const cmd_list_t cmd_list[] = {
 * Notes       : none.
 *********************************************************************************************************
 */
-static char cmd_excute(void)
+static int cmd_excute(void)
 {
 	uint8_t i;
 	uint8_t argc = 0;
