@@ -19,7 +19,7 @@ static inline int hash_func(int k)
         return k % HASH_NUMBER;
 }
 
-void main(void)
+int main(void)
 {
         struct hlist_node *hn;
         struct person *temp_user_struct;
@@ -70,4 +70,6 @@ void main(void)
                                temp_user_struct->weight);
                 }
         }
+
+	return 0;
 }
