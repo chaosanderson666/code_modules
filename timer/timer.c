@@ -236,7 +236,7 @@ void timer_task(void)
                                 ptmr->timer_cur--;
                                 if (ptmr->timer_cur == 0) {
                                         if (ptmr->timer_peri == 0) {
-						/* forever periodicly */
+                                                /* forever periodicly */
                                                 ptmr->timer_cur = ptmr->timer_init;
                                         } else if (ptmr->timer_peri == 1) {
                                                 ptmr->timer_enable = false;
