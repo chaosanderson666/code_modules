@@ -4,7 +4,7 @@
 
 char  *mem_ptr[512];
 
-void main(void)
+int main(void)
 {
         int i = 0;
         char *new_mem = NULL;
@@ -20,4 +20,6 @@ void main(void)
         for (i = 0; i < 512; i++) {
                 free_tiny((void *)(mem_ptr[i]));
         }
+
+	return 0;
 }
