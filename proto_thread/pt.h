@@ -2,7 +2,7 @@
 #define __PT_H__
 
 struct pt {
-  unsigned short s;
+        unsigned short s;
 };
 
 #define PT_WAITING    0

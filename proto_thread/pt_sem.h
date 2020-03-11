@@ -4,7 +4,7 @@
 #include "pt.h"
 
 struct pt_sem {
-  unsigned int head, tail;
+        unsigned int head, tail;
 };
 
 #define PT_SEM_COUNT(s) ((s)->head - (s)->tail)
