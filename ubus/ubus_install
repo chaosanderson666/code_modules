@@ -1,0 +1,9 @@
+> get code and compile, install:
+$ git clone https://git.openwrt.org/project/ubus.git
+$ cd ubus
+$ cmake .
+$ make
+$ sudo make install
+
+> !Prerequisites:
+$ sudo apt install lua5.1

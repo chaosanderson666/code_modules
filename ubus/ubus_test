@@ -1,0 +1,13 @@
+> test ubus must be root:
+$ su
+$ /usr/local/sbin/ubusd &
+$ ./example/server & # or './example/server -s /var/run/ubus.sock'.
+$ ./example/client   # or './example/client -s /var/run/ubus.sock'.
+
+> use my test example, download the server.c, client.c, and cover the old code:
+$ cp server.c ./example/
+$ cp client.c ./example/
+$ make
+$ su
+$ ./example/server
+$ ./example/client

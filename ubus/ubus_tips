@@ -1,0 +1,10 @@
+> the limits length of msg is controled by UBUS_MAX_MSGLEN, witch is defined in the CMakeLists.txt file.
+$ vim CMakeLists.txt
+  9 SET(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
+ 10 SET(UBUS_UNIX_SOCKET "/var/run/ubus.sock")
+ 11 SET(UBUS_MAX_MSGLEN 1048576)
+
+> the data communication between server and client by using ubusd, socket file: "/var/run/ubus.sock".
+  the server register the object which contain the methods, the client get the object from ubusd, then setup the data request, and
+  call ubus_invoke() function, if there is data coming from server, the invoke_cb() func will be called, we can get the data by this
+  call back func.
