@@ -1,4 +1,6 @@
-> run samples:
+- run samples:
+```c
 $ cmake .
 $ make
 $ ./sample
+```
