@@ -90,47 +90,63 @@ static const uint32_t RCON[10] = {
 };
 
 #define GET_UINT32(n, b, i) \
-	do {                                              \
-		(n) = ((uint32_t)(b)[(i)    ]      )      \
-			| ((uint32_t)(b)[(i) + 1] <<  8)  \
-			| ((uint32_t)(b)[(i) + 2] << 16)  \
-			| ((uint32_t)(b)[(i) + 3] << 24); \
-	} while(0)
+        do {                                              \
+                (n) = ((uint32_t)(b)[(i)    ]      )      \
+                        | ((uint32_t)(b)[(i) + 1] <<  8)  \
+                        | ((uint32_t)(b)[(i) + 2] << 16)  \
+                        | ((uint32_t)(b)[(i) + 3] << 24); \
+        } while(0)
 
 #define ROTL8(x)    (((x) << 24) | ((x) >> 8))
 #define ROTL16(x)   (((x) << 16) | ((x) >> 16))
 #define ROTL24(x)   (((x) << 8) | ((x) >> 24))
 
 
-#define mix_columns(state) _mix_columns(state, MIX)
-#define inv_mix_columns(state) _mix_columns(state, INV_MIX)
+#define mix_columns(state)   _mix_columns(state, MIX)
+#define inv_mix_columns(state)   _mix_columns(state, INV_MIX)
 
 #define SUB_WORD(x) (((uint32_t)S_BOX[(x) & 0xFF]) \
-		| ((uint32_t)S_BOX[((x) >>  8) & 0xFF] << 8)   \
-		| ((uint32_t)S_BOX[((x) >> 16) & 0xFF] << 16)  \
-		| ((uint32_t)S_BOX[((x) >> 24) & 0xFF] << 24))
+        | ((uint32_t)S_BOX[((x) >>  8) & 0xFF] << 8) \
+        | ((uint32_t)S_BOX[((x) >> 16) & 0xFF] << 16) \
+        | ((uint32_t)S_BOX[((x) >> 24) & 0xFF] << 24))
 
-#define _shift_rows(state, OP1, OP2, OP3) do {                      \
-			transport(state);					    \
-			*(uint32_t *)(state + 4) = OP1(*(uint32_t *)(state + 4));   \
-			*(uint32_t *)(state + 8) = OP2(*(uint32_t *)(state + 8));   \
-			*(uint32_t *)(state + 12) = OP3(*(uint32_t *)(state + 12)); \
-			transport(state);					    \
-	} while(0)
+#define _shift_rows(state, OP1, OP2, OP3) \
+        do {                       \
+                transport(state);  \
+                *(uint32_t *)(state + 4) = OP1(*(uint32_t *)(state + 4)); \
+                *(uint32_t *)(state + 8) = OP2(*(uint32_t *)(state + 8)); \
+                *(uint32_t *)(state + 12) = OP3(*(uint32_t *)(state + 12)); \
+                transport(state);  \
+        } while(0)
 
-#define shift_rows(state)       _shift_rows(state, ROTL8, ROTL16, ROTL24)
+#define shift_rows(state)   _shift_rows(state, ROTL8, ROTL16, ROTL24)
 #define inv_shift_rows(state)   _shift_rows(state, ROTL24, ROTL16, ROTL8)
 
 static void __memcpy(void *des, const void *src, uint32_t len)
 {
-	uint32_t i;
+        if (!des || !src || len <= 0) {
+                return;
+        }
 
-	uint8_t *_des = (uint8_t *)des;
-	uint8_t *_src = (uint8_t *)src;
+        uint8_t *tmp_des = (uint8_t *)des;
+        uint8_t *tmp_src = (uint8_t *)src;
 
-	for (i = 0; i < len; i++) {
-		_des[i] = _src[i];
-	}
+        while (len-- > 0) {
+                *tmp_des++ = *tmp_src++;
+        }
+}
+
+static void __memset(void *s, int c, uint32_t len)
+{
+        if (!s || len <= 0) {
+                return;
+        }
+
+        uint8_t *tmp = (uint8_t *)s;
+
+        while (len-- > 0) {
+                *tmp++ = c;
+        }
 }
 
 static void transport(uint8_t *state)
@@ -143,8 +159,8 @@ static void transport(uint8_t *state)
                         new_state[r][c] = state[(c << 2) + r];
                 }
         }
-	
-	__memcpy(state, new_state, 16);
+
+        __memcpy(state, new_state, 16);
 }
 
 static void add_round_key(uint8_t *state, const uint8_t *key)
@@ -204,8 +220,8 @@ static void _mix_columns(uint8_t *state, const uint8_t matrix[][4])
                         }
                 }
         }
-	
-	__memcpy(state, new_state, 16);
+
+        __memcpy(state, new_state, 16);
 }
 
 static void aes_round(uint8_t *state, const uint8_t *rk)
@@ -261,6 +277,11 @@ static void key_expansion(aes_context *ctx, const uint8_t *key)
         } while (++i < ek);
 }
 
+void aes_ctx_init(aes_context *ctx)
+{
+        __memset(ctx, 0, sizeof(aes_context));
+}
+
 int aes_set_key(aes_context *ctx, const uint8_t *key, uint32_t key_bit)
 {
         switch (key_bit) {
@@ -284,18 +305,18 @@ int aes_set_key(aes_context *ctx, const uint8_t *key, uint32_t key_bit)
         return 0;
 }
 
-int aes_encrypt_block(aes_context *ctx, uint8_t *cipher_text, const uint8_t *text)
+int aes_block_encrypt(aes_context *ctx, const uint8_t *input, uint8_t *output)
 {
         uint32_t i;
         uint32_t nr = ctx->nr;
         uint32_t *rk = ctx->rk;
-        uint8_t *state = cipher_text;
+        uint8_t *state = output;
 
         if (ctx->rk != ctx->buf) {
                 return 1;
         }
 
-	__memcpy(state, text, 16);
+        __memcpy(state, input, 16);
 
         /* inital round */
         add_round_key(state, (const uint8_t *)rk);
@@ -311,18 +332,18 @@ int aes_encrypt_block(aes_context *ctx, uint8_t *cipher_text, const uint8_t *tex
         return 0;
 }
 
-int aes_decrypt_block(aes_context *ctx, uint8_t *text, const uint8_t *cipher_text)
+int aes_block_decrypt(aes_context *ctx, const uint8_t *input, uint8_t *output)
 {
         uint32_t i;
         uint32_t nr = ctx->nr;
         uint32_t *inv_rk = ctx->rk;
-        uint8_t *state = text;
+        uint8_t *state = output;
 
         if (ctx->rk != ctx->buf) {
                 return 1;
         }
 
-	__memcpy(state, cipher_text, 16);
+        __memcpy(state, input, 16);
 
         /* inital round */
         add_round_key(state, (const uint8_t *)(inv_rk + (nr << 2)));
@@ -337,3 +358,56 @@ int aes_decrypt_block(aes_context *ctx, uint8_t *text, const uint8_t *cipher_tex
 
         return 0;
 }
+
+int aes_cbc_encrypt(aes_context *ctx, uint32_t length, uint8_t iv[16],
+                    const uint8_t *input, uint8_t *output)
+{
+        uint8_t i;
+        uint8_t temp[16];
+
+        if (length % 16)
+                return (-1);
+
+
+        while (length > 0) {
+                for (i = 0; i < 16; i++)
+                        output[i] = (uint8_t)(input[i] ^ iv[i]);
+
+                aes_block_encrypt( ctx, output, output);
+                __memcpy(iv, output, 16);
+
+                input  += 16;
+                output += 16;
+                length -= 16;
+        }
+
+        return (0);
+}
+
+int aes_cbc_decrypt(aes_context *ctx, uint32_t length, uint8_t iv[16],
+                    const uint8_t *input, uint8_t *output)
+{
+        uint8_t i;
+        uint8_t temp[16];
+
+        if (length % 16 )
+                return (-1);
+
+        while (length > 0) {
+                __memcpy(temp, input, 16);
+
+                aes_block_decrypt(ctx, input, output);
+
+                for ( i = 0; i < 16; i++ )
+                        output[i] = (uint8_t)(output[i] ^ iv[i]);
+
+                __memcpy(iv, temp, 16);
+
+                input  += 16;
+                output += 16;
+                length -= 16;
+        }
+
+        return (0);
+}
+
