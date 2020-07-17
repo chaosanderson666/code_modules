@@ -1,4 +1,3 @@
-#include <string.h>
 #include "aes_block.h"
 
 static const uint8_t S_BOX[256] = {
@@ -122,25 +121,37 @@ static const uint32_t RCON[10] = {
 #define shift_rows(state)       _shift_rows(state, ROTL8, ROTL16, ROTL24)
 #define inv_shift_rows(state)   _shift_rows(state, ROTL24, ROTL16, ROTL8)
 
+static void __memcpy(void *des, const void *src, uint32_t len)
+{
+	uint32_t i;
+
+	uint8_t *_des = (uint8_t *)des;
+	uint8_t *_src = (uint8_t *)src;
+
+	for (i = 0; i < len; i++) {
+		_des[i] = _src[i];
+	}
+}
+
 static void transport(uint8_t *state)
 {
         uint8_t new_state[4][4];
 
-        int r, c;
+        int r, c, i;
         for (r = 0; r < 4; ++r) {
                 for (c = 0; c < 4; ++c) {
                         new_state[r][c] = state[(c << 2) + r];
                 }
         }
-
-        memcpy(state, new_state, sizeof(new_state));
+	
+	__memcpy(state, new_state, 16);
 }
 
 static void add_round_key(uint8_t *state, const uint8_t *key)
 {
         int i;
 
-        for (i = 0; i < BLOCK_SIZE; ++i) {
+        for (i = 0; i < 16; ++i) {
                 state[i] ^= key[i];
         }
 }
@@ -149,7 +160,7 @@ static void _sub_bytes(uint8_t *state, const uint8_t *box)
 {
         int i;
 
-        for (i = 0; i < BLOCK_SIZE; ++i) {
+        for (i = 0; i < 16; ++i) {
                 state[i] = box[state[i]];
         }
 }
@@ -180,9 +191,9 @@ static uint8_t GF_256_multiply(uint8_t a, uint8_t b)
         return ret;
 }
 
-static void _mix_columns(uint8_t state[BLOCK_SIZE], const uint8_t matrix[][4])
+static void _mix_columns(uint8_t *state, const uint8_t matrix[][4])
 {
-        uint8_t new_state[BLOCK_SIZE] = {0};
+        uint8_t new_state[16] = {0};
         int r, c, i;
 
         for (r = 0; r < 4; ++r) {
@@ -193,8 +204,8 @@ static void _mix_columns(uint8_t state[BLOCK_SIZE], const uint8_t matrix[][4])
                         }
                 }
         }
-
-        memcpy(state, new_state, sizeof(new_state));
+	
+	__memcpy(state, new_state, 16);
 }
 
 static void aes_round(uint8_t *state, const uint8_t *rk)
@@ -250,7 +261,7 @@ static void key_expansion(aes_context *ctx, const uint8_t *key)
         } while (++i < ek);
 }
 
-uint8_t aes_set_key(aes_context *ctx, const uint8_t *key, uint32_t key_bit)
+int aes_set_key(aes_context *ctx, const uint8_t *key, uint32_t key_bit)
 {
         switch (key_bit) {
         case 128:
@@ -273,22 +284,18 @@ uint8_t aes_set_key(aes_context *ctx, const uint8_t *key, uint32_t key_bit)
         return 0;
 }
 
-uint8_t aes_encrypt_block(aes_context *ctx, uint8_t *cipher_text, const uint8_t *text)
+int aes_encrypt_block(aes_context *ctx, uint8_t *cipher_text, const uint8_t *text)
 {
-        uint32_t nr;
-        uint32_t *rk;
-        uint8_t *state;
         uint32_t i;
+        uint32_t nr = ctx->nr;
+        uint32_t *rk = ctx->rk;
+        uint8_t *state = cipher_text;
 
         if (ctx->rk != ctx->buf) {
                 return 1;
         }
 
-        nr = ctx->nr;
-        rk = ctx->rk;
-
-        state = cipher_text;
-        memcpy(state, text, BLOCK_SIZE);
+	__memcpy(state, text, 16);
 
         /* inital round */
         add_round_key(state, (const uint8_t *)rk);
@@ -304,23 +311,18 @@ uint8_t aes_encrypt_block(aes_context *ctx, uint8_t *cipher_text, const uint8_t 
         return 0;
 }
 
-uint8_t aes_decrypt_block(aes_context *ctx, uint8_t *text,
-                          const uint8_t *cipher_text)
+int aes_decrypt_block(aes_context *ctx, uint8_t *text, const uint8_t *cipher_text)
 {
-        uint32_t nr;
-        uint32_t *inv_rk;
-        uint8_t *state;
         uint32_t i;
+        uint32_t nr = ctx->nr;
+        uint32_t *inv_rk = ctx->rk;
+        uint8_t *state = text;
 
         if (ctx->rk != ctx->buf) {
                 return 1;
         }
 
-        nr = ctx->nr;
-        inv_rk = ctx->rk;
-        state = text;
-
-        memcpy(state, cipher_text, BLOCK_SIZE);
+	__memcpy(state, cipher_text, 16);
 
         /* inital round */
         add_round_key(state, (const uint8_t *)(inv_rk + (nr << 2)));
