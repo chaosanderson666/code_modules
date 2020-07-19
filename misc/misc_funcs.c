@@ -27,3 +27,30 @@ char *strncpy(char *dest, const char *src, size_t n)
         dest[i] = '\0';
     return dest;
 }
+
+static void __memcpy(void *des, const void *src, uint32_t len)
+{
+        if (!des || !src || len <= 0) {
+                return;
+        }
+
+        uint8_t *tmp_des = (uint8_t *)des;
+        uint8_t *tmp_src = (uint8_t *)src;
+
+        while (len-- > 0) {
+                *tmp_des++ = *tmp_src++;
+        }
+}
+
+static void __memset(void *s, int c, uint32_t len)
+{
+        if (!s || len <= 0) {
+                return;
+        }
+
+        uint8_t *tmp = (uint8_t *)s;
+
+        while (len-- > 0) {
+                *tmp++ = c;
+        }
+}
