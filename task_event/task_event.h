@@ -11,26 +11,21 @@ enum {
 	TASK_EVENT_6 = 1 << 6,
 	TASK_EVENT_7 = 1 << 7,
 	TASK_EVENT_NUM = 8,
-}
+};
+
 typedef void (*task_handler)(unsigned char event);
 
-static inline void enter_critical(void)
-{
-	/* disable interrupt */
-}
-
-static inline void exit_critical(void)
-{
-	/* enable interrupt */
-}
+void enter_critical(void);
+void exit_critical(void);
 
 void tasks_run(void);
 char task_create(task_handler handler);
 char task_delete(char task_index);
 char task_get_task_index(void);
 
-char task_send_event(unsigned char task_index, unsigned char event, void *paras);
-char task_send_event_isr(unsigned char task_index, unsigned char event, void *paras);
+char task_event_send(char task_index, unsigned char event, void *para);
+char task_event_send_isr(char task_index, unsigned char event, void *para);
+char task_event_clear(unsigned char event);
 
 #endif
 
