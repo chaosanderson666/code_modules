@@ -6,7 +6,6 @@
 struct task {
 	unsigned char event; /* max 8 evnets */
 	task_handler handler;
-	void *paras[8];
 };
 
 static struct task tasks[MAX_NUM_OF_TASKS];
@@ -84,27 +83,6 @@ char task_get_task_index(void)
 	return cur_task_index;
 }
 
-static char task_get_para_index_by_event(unsigned char event)
-{
-	int i;
-	
-	for (i = 0; i < TASK_EVENT_NUM; i++) {
-		if (event == 1 << i) {
-			return i;
-		}
-	}
-}
-
-static void *task_set_para_by_event(char index, unsigned char event, void *para)
-{
-	tasks[index].paras[task_get_para_index_by_event(event)] = para;
-}
-
-void *task_get_para_by_event(unsigned char event)
-{
-	return tasks[cur_task_index].paras[task_get_para_index_by_event(event)];
-}
-
 char task_event_send_isr(char task_index, unsigned char event, void *para)
 {
 	if (task_index > MAX_NUM_OF_TASKS - 1) {
@@ -112,7 +90,6 @@ char task_event_send_isr(char task_index, unsigned char event, void *para)
 	}
 	
 	tasks[task_index].event |= event;
-	tasks[task_index].paras[task_get_para_index_by_event(event)] = para;
 	
 	return 0;
 }
@@ -135,7 +112,6 @@ char task_event_clear(unsigned char event)
 	char task_index = task_get_task_index();
 	
 	tasks[task_index].event &= ~event;
-	tasks[task_index].paras[task_get_para_index_by_event(event)] = NULL;
 	
 	exit_critical();
 	
