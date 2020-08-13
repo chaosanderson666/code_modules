@@ -23,7 +23,7 @@ PT_THREAD(producer(struct pt *pt))
                 PT_SEM_SIGNAL(pt, &mutex);
                 PT_SEM_SIGNAL(pt, &empty);
         }
-	
+
         PT_END(pt);
 }
 
@@ -32,7 +32,7 @@ PT_THREAD(consumer(struct pt *pt))
         static int consumed;
 
         PT_BEGIN(pt);
-	
+
         for (consumed = 0; consumed < NUM_ITEMS; ++consumed) {
                 PT_SEM_WAIT(pt, &empty);
                 PT_SEM_WAIT(pt, &mutex);
@@ -41,7 +41,7 @@ PT_THREAD(consumer(struct pt *pt))
 
                 PT_SEM_SIGNAL(pt, &full);
         }
-	
+
         PT_END(pt);
 }
 
@@ -58,7 +58,7 @@ PT_THREAD(driver_thread(struct pt *pt))
         printf("driver_thread wait child!\n");
         PT_WAIT_THREAD(pt, producer(&pt_producer) & consumer(&pt_consumer));
         printf("driver_thread waited child!\n");
-	
+
         PT_END(pt);
 }
 
